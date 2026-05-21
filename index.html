@@ -6,225 +6,195 @@
     <title>منظومة سَنا الآي المتكاملة</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { font-family: 'Tajawal', sans-serif; font-style: normal !important; transition: all 0.3s ease; }
         body { background-color: #f8f7ff; margin: 0; overflow-x: hidden; }
         .navy-blue { color: #2d3a6d; }
         .navy-bg { background-color: #2d3a6d; }
-        .pastel-purple { background-color: #f3f0ff; }
-        .sidebar { width: 260px; height: 100vh; background: white; border-left: 2px solid #f3e8ff; position: fixed; right: 0; top: 0; z-index: 100; transform: translateX(100%); }
+        .sidebar { width: 280px; height: 100vh; background: white; border-left: 2px solid #f3e8ff; position: fixed; right: 0; top: 0; z-index: 100; transform: translateX(100%); }
         .sidebar.active { transform: translateX(0); }
         .main-content { margin-right: 0; width: 100%; padding: 20px; }
-        @media (min-width: 1024px) { .sidebar { transform: translateX(0); } .main-content { margin-right: 260px; } .menu-btn { display: none; } }
-        .card-custom { background: white; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; }
+        @media (min-width: 1024px) { .sidebar { transform: translateX(0); } .main-content { margin-right: 280px; } }
+        .card-custom { background: white; border-radius: 35px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
         .juz-box { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 1px solid #eee; }
-        .juz-done { background: #8b5cf6; color: white; border-color: #8b5cf6; box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); }
+        .juz-done { background: #8b5cf6; color: white; border-color: #8b5cf6; }
         .hidden { display: none !important; }
+        .btn-role { padding: 10px; border-radius: 15px; font-size: 12px; font-weight: bold; border: 1px solid #eee; text-align: center; cursor: pointer; }
+        .active-role { background: #2d3a6d; color: white; }
     </style>
 </head>
 <body>
 
     <!-- زر القائمة للجوال -->
-    <button onclick="toggleSidebar()" class="menu-btn fixed top-4 right-4 z-[110] bg-white p-3 rounded-2xl shadow-lg navy-blue">
-        <i class="fas fa-bars"></i>
+    <button onclick="toggleSidebar()" class="fixed top-4 right-4 z-[110] bg-white p-3 rounded-2xl shadow-lg lg:hidden">
+        <i class="fas fa-bars navy-blue"></i>
     </button>
-
-    <!-- شريط التميز العلوي (يظهر للكل) -->
-    <div id="topTicker" class="fixed top-0 left-0 right-0 z-[90] bg-gradient-to-r from-purple-500 to-blue-500 text-white text-[10px] py-2 overflow-hidden hidden">
-        <div class="whitespace-nowrap animate-marquee px-4">
-            ✨ الحلقات المتميزة لليوم: حلقة البهور 1 🏆 حلقة إشراق 5 🏆 حلقة سراج 2 🏆 حلقة مهج 8 ✨
-        </div>
-    </div>
 
     <!-- الشريط الجانبي -->
     <aside id="sidebar" class="sidebar p-6 flex flex-col gap-6 shadow-xl">
-        <div class="text-center mt-4">
-            <img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" alt="سنا الآي" class="w-20 mx-auto mb-2">
-            <h1 class="text-lg font-black navy-blue italic">مقرأة سَنا الآي</h1>
+        <div class="text-center">
+            <img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" class="w-20 mx-auto mb-2">
+            <h1 class="text-lg font-black navy-blue uppercase">سَنا الآي</h1>
         </div>
 
-        <!-- التقويم الدراسي (شريط جانبي) -->
-        <div id="calendarSide" class="bg-purple-50 p-4 rounded-3xl text-center">
-            <p class="text-[9px] text-purple-400 font-bold mb-1 uppercase">تقويم المقرأة:</p>
-            <p id="todayDate" class="text-xs font-bold navy-blue">-- مايو --</p>
-            <div class="mt-3 space-y-2">
-                <div class="bg-white p-2 rounded-xl border border-blue-50">
-                    <p class="text-[8px] text-blue-400 font-bold">الاختبار القادم:</p>
-                    <p class="text-sm font-black text-blue-600">12 يوم</p>
-                </div>
-            </div>
+        <div id="userInfo" class="bg-purple-50 p-4 rounded-3xl text-center">
+            <p id="userNameDisplay" class="text-xs font-bold navy-blue">جاري التحميل...</p>
+            <p id="userRoleDisplay" class="text-[10px] text-purple-500 font-bold uppercase italic"></p>
         </div>
 
-        <!-- أزرار التنقل -->
-        <nav class="flex flex-col gap-2 mt-4" id="navLinks">
-            <!-- الروابط تتغير حسب الرتبة -->
+        <!-- أزرار التنقل الذكية -->
+        <nav class="flex flex-col gap-2 overflow-y-auto max-h-[50vh]" id="navMenu">
+            <!-- ستظهر هنا الأزرار بناءً على الرتبة -->
         </nav>
 
-        <button onclick="logout()" class="mt-auto p-4 text-red-400 text-xs font-bold border-t border-gray-100 flex items-center gap-2">
+        <button onclick="logout()" class="mt-auto p-4 text-red-400 text-xs font-bold border-t flex items-center gap-2">
             <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
         </button>
     </aside>
 
-    <!-- المحتوى الرئيسي -->
-    <main class="main-content mt-10">
-        
-        <!-- صفحة تسجيل الدخول -->
-        <section id="loginPage" class="flex items-center justify-center min-h-[80vh]">
-            <div class="max-w-md w-full bg-white p-10 rounded-[45px] shadow-2xl border border-purple-50 text-center">
-                <img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" alt="سنا الآي" class="w-24 mx-auto mb-6">
-                <h2 class="text-2xl font-black navy-blue mb-2">دخول المنظومة</h2>
-                <p class="text-xs text-purple-400 font-bold mb-8">في سَنا الآي ورُبَاه 💜☁️</p>
+    <main class="main-content">
+        <!-- صفحة الدخول (تختفي بعد الدخول) -->
+        <section id="loginSection" class="flex items-center justify-center min-h-[80vh]">
+            <div class="max-w-md w-full bg-white p-10 rounded-[50px] shadow-2xl text-center">
+                <img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" class="w-24 mx-auto mb-6">
+                <h2 class="text-2xl font-black navy-blue mb-8">منظومة سَنا الآي</h2>
                 <div class="space-y-4">
-                    <input type="email" id="email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-2xl bg-gray-50 border-none ring-1 ring-gray-100 focus:ring-2 focus:ring-purple-400 outline-none">
-                    <input type="password" id="password" placeholder="كلمة المرور" class="w-full p-4 rounded-2xl bg-gray-50 border-none ring-1 ring-gray-100 focus:ring-2 focus:ring-purple-400 outline-none">
-                    <button onclick="handleLogin()" id="loginBtn" class="w-full py-4 navy-bg text-white font-bold rounded-2xl shadow-lg hover:opacity-90 transition">الدخول للمنظومة</button>
-                    <p id="loginMsg" class="text-[10px] font-bold text-red-500 mt-2"></p>
+                    <input type="email" id="email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-2xl bg-gray-50 outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-purple-400">
+                    <input type="password" id="password" placeholder="كلمة المرور" class="w-full p-4 rounded-2xl bg-gray-50 outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-purple-400">
+                    <button onclick="handleLogin()" class="w-full py-4 navy-bg text-white font-bold rounded-2xl shadow-lg">دخول المنظومة</button>
                 </div>
             </div>
         </section>
 
         <!-- لوحة تحكم القائدة -->
         <section id="leaderDash" class="hidden space-y-8">
-            <header>
-                <h2 class="text-3xl font-black navy-blue">لوحة القائدة 🌸</h2>
-                <p class="text-gray-400 text-sm italic">ملخص أداء المنظومة بالكامل</p>
-            </header>
-
+            <h2 class="text-2xl font-black navy-blue">لوحة القائدة 🌸</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="card-custom p-8 border-r-8 border-purple-500">
-                    <p class="text-gray-400 text-[10px] font-bold uppercase italic">أوجه الحفظ (اليوم)</p>
-                    <h3 class="text-4xl font-black navy-blue mt-2">145.5</h3>
+                <div class="card-custom p-6 border-r-8 border-purple-500">
+                    <p class="text-gray-400 text-[10px] font-bold">أوجه الحفظ اليوم</p>
+                    <h3 class="text-3xl font-black navy-blue mt-2">145.5</h3>
                 </div>
-                <div class="card-custom p-8 border-r-8 border-blue-500">
-                    <p class="text-gray-400 text-[10px] font-bold uppercase italic">أوجه المراجعة</p>
-                    <h3 class="text-4xl font-black navy-blue mt-2">320.0</h3>
+                <div class="card-custom p-6 border-r-8 border-red-500">
+                    <p class="text-gray-400 text-[10px] font-bold">إنذارات غياب</p>
+                    <h3 class="text-3xl font-black text-red-500 mt-2">5</h3>
                 </div>
-                <div class="card-custom p-8 border-r-8 border-red-500">
-                    <p class="text-gray-400 text-[10px] font-bold uppercase italic">إنذارات الغياب</p>
-                    <h3 class="text-4xl font-black text-red-500 mt-2">5</h3>
+                <div class="card-custom p-6 border-r-8 border-blue-500">
+                    <p class="text-gray-400 text-[10px] font-bold">تقصيرات نشطة</p>
+                    <h3 class="text-3xl font-black text-blue-500 mt-2">12</h3>
                 </div>
             </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button onclick="showSection('managerDash')" class="p-8 bg-white border-2 border-dashed border-purple-200 rounded-[40px] font-bold navy-blue">
+                    <i class="fas fa-tasks mb-2 block text-2xl"></i> إدارة المسارات والمهام
+                </button>
+                <button onclick="showSection('storeBuilder')" class="p-8 bg-white border-2 border-dashed border-blue-200 rounded-[40px] font-bold navy-blue">
+                    <i class="fas fa-store mb-2 block text-2xl"></i> باني المتجر والمنتجات
+                </button>
+            </div>
+        </section>
 
-            <!-- أزرار الإكسل وباني المتجر -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="card-custom p-8 border-2 border-dashed border-emerald-100 text-center cursor-pointer" onclick="exportExcel()">
-                    <i class="fas fa-file-excel text-4xl text-emerald-500 mb-4"></i>
-                    <h4 class="font-bold text-gray-800">تصدير إكسل شامل</h4>
-                    <p class="text-[10px] text-gray-400 mt-1 italic">تحميل كافة بيانات الطالبات والكوادر</p>
-                </div>
-                <div class="card-custom p-8 border-2 border-dashed border-purple-100 text-center cursor-pointer" onclick="showSection('storeBuilder')">
-                    <i class="fas fa-store text-4xl text-purple-500 mb-4"></i>
-                    <h4 class="font-bold text-gray-800">إدارة المتجر والباقات</h4>
-                    <p class="text-[10px] text-gray-400 mt-1 italic">إضافة منتجات أو باقات برمجية</p>
+        <!-- لوحة مدخلة البيانات -->
+        <section id="entryDash" class="hidden space-y-6">
+            <h2 class="text-2xl font-black navy-blue">إدخال الإنجاز اليومي</h2>
+            <div class="card-custom p-8 space-y-6">
+                <select id="circleSelect" class="w-full p-4 bg-gray-50 rounded-2xl outline-none border-none ring-1 ring-gray-200 font-bold">
+                    <option>-- اختر الحلقة --</option>
+                </select>
+                
+                <div id="studentList" class="space-y-4">
+                    <!-- الأسماء ستظهر هنا وتختفي بعد الإدخال -->
+                    <p class="text-center text-gray-400 text-xs italic italic italic">يرجى اختيار الحلقة أولاً</p>
                 </div>
             </div>
         </section>
 
-        <!-- واجهة الطالبة -->
+        <!-- لوحة الطالبة -->
         <section id="studentDash" class="hidden space-y-8">
-            <div class="flex justify-between items-center bg-white p-6 rounded-[35px] shadow-sm">
-                <div>
-                    <h2 id="studentWelcome" class="text-xl font-black navy-blue italic">أهلاً بكِ 🌸</h2>
-                    <p class="text-xs text-purple-400 font-bold">  </p>
-                </div>
-                <div id="studentBadges" class="flex gap-2 text-2xl">
-                    👑 ⭐
-                </div>
+            <div class="flex justify-between items-center bg-white p-6 rounded-[40px] shadow-sm">
+                <h2 id="stWelcome" class="text-xl font-black navy-blue italic">أهلاً بكِ 🌸</h2>
+                <span class="text-2xl">👑 ⭐</span>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- خريطة الختم -->
-                <div class="md:col-span-2 card-custom p-8">
-                    <h4 class="font-bold navy-blue mb-6 italic"><i class="fas fa-map-marked-alt ml-2"></i> خريطة إنجاز الأجزاء:</h4>
-                    <div id="juzMap" class="grid grid-cols-6 md:grid-cols-10 gap-3">
-                        <!-- سيتم إنشاؤها بالجاوا سكريبت -->
-                    </div>
-                </div>
-
-                <!-- نصاب السماع والقارئ -->
-                <div class="card-custom p-8 text-center border-2 border-blue-50">
-                    <p class="text-[10px] font-bold text-blue-400 mb-4">محراب التلاوة والسماع</p>
-                    <select id="qurraSelect" class="w-full p-3 rounded-xl bg-gray-50 text-xs font-bold mb-4 outline-none">
-                        <option>الشيخ محمود الحصري</option>
-                        <option>الشيخ محمد المنشاوي</option>
-                        <option>الشيخ إبراهيم الأخضر</option>
-                    </select>
-                    <div class="p-4 bg-blue-50 rounded-2xl mb-4">
-                        <p id="studentNisab" class="text-sm font-bold navy-blue">سورة مريم (1-15)</p>
-                    </div>
-                    <div class="flex justify-center gap-6 text-2xl text-blue-600">
-                        <button><i class="fas fa-play"></i></button>
-                        <button><i class="fas fa-cloud-download-alt"></i></button>
-                    </div>
-                </div>
+            <div id="juzMap" class="card-custom p-8 grid grid-cols-6 md:grid-cols-10 gap-3"></div>
+            <!-- مشغل القرآن -->
+            <div class="card-custom p-8 text-center border-2 border-blue-50">
+                 <p class="text-[10px] text-blue-400 font-bold mb-4 uppercase">محراب السماع</p>
+                 <div class="bg-blue-50 p-6 rounded-[30px] mb-6">
+                     <p class="font-bold navy-blue">سورة مريم (1-15)</p>
+                 </div>
+                 <div class="flex justify-center gap-10 text-3xl text-blue-600">
+                     <button><i class="fas fa-play"></i></button>
+                     <button><i class="fas fa-cloud-download-alt"></i></button>
+                 </div>
             </div>
         </section>
 
     </main>
 
     <script>
-        // إعدادات Supabase الخاصة بكِ
         const supabaseUrl = 'https://ftsfdcyfjhhjyagietts.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c2ZkY3lmamhoanlhZ2lldHRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI1NTcsImV4cCI6MjA5NDg4ODU1N30.i7zRKjAxs2jLOaPTN8ssOExhqurIOte5MkrzvpRbBiA';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let currentUser = null;
-        let currentRole = null;
+        let user = null;
+        let role = null;
 
-        // وظيفة تسجيل الدخول
         async function handleLogin() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const msg = document.getElementById('loginMsg');
-            msg.innerText = "جاري الدخول...";
 
-            const { data: user, error: userErr } = await _supabase
+            const { data: userData, error } = await _supabase
                 .from('users_meta')
                 .select('*')
                 .eq('email', email)
                 .eq('password', password)
                 .single();
 
-            if (userErr || !user) {
-                msg.innerText = "خطأ في البيانات، تأكدي من البريد والرمز.";
+            if (error || !userData) {
+                alert("خطأ في البيانات!");
                 return;
             }
 
             const { data: roleData } = await _supabase
                 .from('user_roles')
                 .select('*')
-                .eq('user_id', user.id)
+                .eq('user_id', userData.id)
                 .single();
 
-            currentUser = user;
-            currentRole = roleData ? roleData.role : 'طالبة';
+            user = userData;
+            role = roleData ? roleData.role : 'طالبة';
             
-            showDashboard();
+            initApp();
         }
 
-        function showDashboard() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('topTicker').classList.remove('hidden');
+        function initApp() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('userNameDisplay').innerText = user.full_name;
+            document.getElementById('userRoleDisplay').innerText = role;
             
-            if (currentRole === 'قائدة') {
-                document.getElementById('leaderDash').classList.remove('hidden');
-            } else if (currentRole === 'طالبة') {
-                document.getElementById('studentDash').classList.remove('hidden');
-                document.getElementById('studentWelcome').innerText = `أهلاً بكِ، ${currentUser.full_name.split(' ')[0]} 🌸`;
-                renderJuzMap();
-            }
+            // إظهار اللوحة المناسبة
+            if (role === 'قائدة') showSection('leaderDash');
+            else if (role === 'مدخلة') showSection('entryDash');
+            else if (role === 'طالبة') showSection('studentDash');
+
+            if(role === 'طالبة') renderJuzMap();
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
         }
 
         function renderJuzMap() {
-            const container = document.getElementById('juzMap');
-            container.innerHTML = '';
+            const map = document.getElementById('juzMap');
+            map.innerHTML = '';
             for (let i = 1; i <= 30; i++) {
                 const box = document.createElement('div');
                 box.className = `juz-box ${i <= 3 ? 'juz-done' : ''}`;
                 box.innerText = i;
-                container.appendChild(box);
+                map.appendChild(box);
             }
         }
 
@@ -232,18 +202,7 @@
             document.getElementById('sidebar').classList.toggle('active');
         }
 
-        function logout() {
-            location.reload();
-        }
-
-        // تحديث التاريخ
-        document.getElementById('todayDate').innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
-
+        function logout() { location.reload(); }
     </script>
-    
-    <style>
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .animate-marquee { display: inline-block; animation: marquee 30s linear infinite; }
-    </style>
 </body>
     </html>
