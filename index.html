@@ -2,157 +2,106 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
     <title>منظومة سَنا الآي المتكاملة</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src=\"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2\"></script>
+    <script src=\"https://cdn.tailwindcss.com\"></script>
+    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js\"></script>
+    <link href=\"https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap\" rel=\"stylesheet\">
+    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css\">
     <style>
-        * { font-family: 'Tajawal', sans-serif !important; font-style: normal !important; box-sizing: border-box; }
-        body { background-color: #f8faff; margin: 0; overflow-x: hidden; }
+        * { font-family: 'Tajawal', sans-serif !important; font-style: normal !important; transition: all 0.2s; }
+        body { background-color: #f8faff; margin: 0; }
         .navy-bg { background-color: #2d3a6d; }
         .navy-text { color: #2d3a6d; }
-        .sidebar { width: 280px; height: 100vh; background: white; border-left: 2px solid #f3e8ff; position: fixed; right: 0; top: 0; z-index: 100; transform: translateX(100%); transition: 0.3s; }
+        .sidebar { width: 280px; height: 100vh; background: white; border-left: 2px solid #f3e8ff; position: fixed; right: 0; top: 0; z-index: 100; transform: translateX(100%); }
         .sidebar.active { transform: translateX(0); }
-        .main-content { margin-right: 0; width: 100%; padding: 20px; transition: 0.3s; }
+        .main-content { margin-right: 0; width: 100%; padding: 20px; min-height: 100vh; }
         @media (min-width: 1024px) { .sidebar { transform: translateX(0); } .main-content { margin-right: 280px; } }
         .card-custom { background: white; border-radius: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
         .hidden { display: none !important; }
-        .juz-box { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 1px solid #eee; background: white; }
-        .juz-done { background: #8b5cf6; color: white; border-color: #8b5cf6; }
-        input, select, textarea { outline: none !important; border: 1px solid #e2e8f0; }
-        input:focus { border-color: #8b5cf6; ring: 2px; ring-color: #ddd6fe; }
+        .form-input { width: 100%; padding: 12px; border-radius: 15px; background: #f9fafb; border: 1px solid #e5e7eb; outline: none; font-size: 14px; }
+        .form-input:focus { ring: 2px; ring-color: #8b5cf6; }
     </style>
 </head>
 <body>
 
-    <!-- زر الجوال -->
-    <button onclick="toggleSidebar()" class="fixed top-4 right-4 z-[110] bg-white p-3 rounded-2xl shadow-lg lg:hidden">
-        <i class="fas fa-bars navy-text text-xl"></i>
-    </button>
+    <button onclick=\"toggleSidebar()\" class=\"fixed top-4 right-4 z-[110] bg-white p-3 rounded-2xl shadow-lg lg:hidden\"><i class=\"fas fa-bars navy-text\"></i></button>
 
-    <!-- شريط التميز -->
-    <div id="topTicker" class="fixed top-0 left-0 right-0 z-[90] bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[11px] py-2 hidden overflow-hidden">
-        <div class="whitespace-nowrap animate-pulse text-center font-bold">
-            ✨ الحلقات المتميزة لليوم: حلقة البهور 1 🏆 حلقة إشراق 5 🏆 حلقة سراج 2 🏆 حلقة مهج 8 ✨
+    <aside id=\"sidebar\" class=\"sidebar p-6 flex flex-col gap-6 shadow-xl\">
+        <div class=\"text-center\"><img src=\"https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg\" class=\"w-20 mx-auto mb-2\"><h2 class=\"text-lg font-black navy-text\">سَنا الآي</h2></div>
+        <div id=\"authLinks\" class=\"flex flex-col gap-2\">
+            <button onclick=\"showScreen('home')\" class=\"p-3 text-right font-bold text-sm navy-text hover:bg-purple-50 rounded-xl\"><i class=\"fas fa-home ml-2\"></i> الرئيسية</button>
+            <button onclick=\"showScreen('register')\" class=\"p-3 text-right font-bold text-sm navy-text hover:bg-purple-50 rounded-xl\"><i class=\"fas fa-user-plus ml-2\"></i> ركن التسجيل</button>
+            <button onclick=\"showScreen('login')\" id=\"loginSidebarBtn\" class=\"p-3 text-right font-bold text-sm navy-text hover:bg-purple-50 rounded-xl\"><i class=\"fas fa-sign-in-alt ml-2\"></i> دخول المنظومة</button>
         </div>
-    </div>
-
-    <!-- القائمة الجانبية -->
-    <aside id="sidebar" class="sidebar p-6 flex flex-col gap-6 shadow-xl">
-        <div class="text-center">
-            <img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" class="w-20 mx-auto mb-2">
-            <h2 class="text-xl font-black navy-text">سَنا الآي</h2>
+        <div id=\"userProfile\" class=\"hidden bg-purple-50 p-4 rounded-3xl text-center\">
+            <p id=\"displayUserName\" class=\"text-xs font-bold navy-text\">--</p>
+            <p id=\"displayUserRole\" class=\"text-[9px] text-purple-500 font-black\"></p>
         </div>
-
-        <!-- نظام تبديل الأدوار -->
-        <div id="roleSwitcherArea" class="hidden">
-            <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">تبديل الملف الشخصي:</p>
-            <div id="roleButtons" class="flex flex-col gap-2"></div>
-        </div>
-
-        <div id="userCard" class="bg-purple-50 p-4 rounded-3xl text-center hidden">
-            <p id="dispName" class="text-xs font-bold navy-text">--</p>
-            <p id="dispRole" class="text-[9px] text-purple-500 font-bold uppercase"></p>
-        </div>
-
-        <nav class="flex flex-col gap-2" id="navLinks">
-            <!-- الروابط تتغير تلقائياً -->
-        </nav>
-
-        <button onclick="location.reload()" class="mt-auto p-4 text-red-500 text-xs font-bold border-t flex items-center gap-2">
-            <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
-        </button>
+        <nav id=\"navLinks\" class=\"flex flex-col gap-2 mt-4 hidden\"></nav>
+        <button onclick=\"logout()\" id=\"logoutBtn\" class=\"hidden mt-auto p-4 text-red-400 text-xs font-bold border-t flex items-center gap-2\"><i class=\"fas fa-power-off\"></i> خروج</button>
     </aside>
 
-    <main class=\"main-content mt-8\">
-        <!-- صفحة الدخول -->
-        <section id="sec-login" class="flex items-center justify-center min-h-[80vh]">
-            <div class="max-w-md w-full bg-white p-10 rounded-[50px] shadow-2xl text-center border border-purple-50">
-                <img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" class="w-28 mx-auto mb-6">
-                <h2 class="text-2xl font-black navy-text mb-2">دخول المنظومة</h2>
-                <p class="text-xs text-purple-400 font-bold mb-8">في سَنا الآي ورُبَاه 💜☁️</p>
-                <div class="space-y-4">
-                    <input type="email" id="in-email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-2xl bg-gray-50 text-sm">
-                    <input type="password" id="in-pass" placeholder="كلمة المرور" class="w-full p-4 rounded-2xl bg-gray-50 text-sm">
-                    <button onclick="handleLogin()" class="w-full py-4 navy-bg text-white font-bold rounded-2xl shadow-lg hover:opacity-90">دخول</button>
-                    <p id="login-err" class="text-[11px] text-red-500 font-bold"></p>
+    <main class=\"main-content\">
+        <!-- 1. الشاشة الرئيسية والمتجر -->
+        <section id=\"screen-home\" class=\"space-y-12\">
+            <div class=\"text-center py-20 bg-gradient-to-b from-purple-50 to-white rounded-[50px]\">
+                <h1 class=\"text-4xl font-black navy-text mb-4\">مقرأة سَنا الآي ☁️</h1>
+                <p class=\"text-gray-500 italic\">منظومة تعليمية تقنية في خدمة كتاب الله</p>
+            </div>
+            <div id=\"store-list\" class=\"grid grid-cols-1 md:grid-cols-3 gap-6\"></div>
+        </section>
+
+        <!-- 2. ركن التسجيل -->
+        <section id=\"screen-register\" class=\"hidden max-w-2xl mx-auto space-y-8\">
+            <div class=\"card-custom p-10 text-center\">
+                <h2 class=\"text-2xl font-black navy-text mb-8\">انضمي إلينا 🌸</h2>
+                <div class=\"grid grid-cols-2 gap-4 mb-10\">
+                    <button onclick=\"setRegType('staff')\" id=\"reg-staff-btn\" class=\"p-4 border-2 rounded-3xl font-bold navy-text\">متطوعة (كادر)</button>
+                    <button onclick=\"setRegType('student')\" id=\"reg-student-btn\" class=\"p-4 border-2 rounded-3xl font-bold navy-text\">طالبة</button>
+                </div>
+                <div id=\"regForm\" class=\"hidden space-y-4 text-right\">
+                    <input type=\"text\" id=\"reg-name\" placeholder=\"الاسم الرباعي\" class=\"form-input\">
+                    <input type=\"email\" id=\"reg-email\" placeholder=\"البريد الإلكتروني\" class=\"form-input\">
+                    <input type=\"password\" id=\"reg-pass\" placeholder=\"كلمة المرور\" class=\"form-input\">
+                    <input type=\"text\" id=\"reg-phone\" placeholder=\"رقم الجوال\" class=\"form-input\">
+                    <div id=\"staff-fields\" class=\"hidden space-y-4\">
+                        <select id=\"reg-role\" class=\"form-input\"><option value=\"معلمة\">معلمة</option><option value=\"مشرفة\">مشرفة</option><option value=\"مدخلة\">مدخلة بيانات</option></select>
+                        <select id=\"reg-circle\" class=\"form-input\"></select>
+                    </div>
+                    <button onclick=\"submitRegistration()\" class=\"w-full py-4 navy-bg text-white font-bold rounded-2xl shadow-lg\">إرسال الطلب</button>
                 </div>
             </div>
         </section>
 
-        <!-- لوحة القائدة -->
-        <section id="sec-leader" class="hidden space-y-8">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-black navy-text">لوحة القائدة 🌸</h2>
-                <button onclick="exportFullExcel()" class="bg-emerald-500 text-white px-6 py-2 rounded-xl text-xs font-bold shadow-md">تصدير إكسل شامل</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="card-custom p-8 border-r-8 border-purple-500 text-center">
-                    <p class="text-gray-400 text-[10px] font-bold">أوجه الحفظ المنجزة</p>
-                    <h3 class="text-4xl font-black navy-text mt-2">145.5</h3>
-                </div>
-                <div class="card-custom p-8 border-r-8 border-red-500 text-center">
-                    <p class="text-gray-400 text-[10px] font-bold">إنذارات الغياب</p>
-                    <h3 class="text-4xl font-black navy-text mt-2">5</h3>
-                </div>
-                <div class="card-custom p-8 border-r-8 border-blue-500 text-center">
-                    <p class="text-gray-400 text-[10px] font-bold">مبيعات المتجر</p>
-                    <h3 class="text-4xl font-black navy-text mt-2">12</h3>
-                </div>
-            </div>
-            <div class="card-custom p-8">
-                <h3 class="font-bold navy-text mb-6">باني المتجر والمنتجات الرقمية</h3>
-                <div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4\">
-                    <input id="p-name\" placeholder="اسم المنتج" class="p-3 bg-gray-50 rounded-xl text-xs">
-                    <input id="p-price\" placeholder="السعر" class="p-3 bg-gray-50 rounded-xl text-xs">
-                    <input id="p-img\" placeholder="رابط الصورة" class="p-3 bg-gray-50 rounded-xl text-xs">
-                    <button onclick="alert('تم النشر بنجاح')" class="navy-bg text-white rounded-xl font-bold py-3 text-xs">نشر المنتج</button>
-                </div>
+        <!-- 3. الدخول -->
+        <section id=\"screen-login\" class=\"hidden flex items-center justify-center min-h-[70vh]\">
+            <div class=\"max-w-md w-full bg-white p-10 rounded-[50px] shadow-2xl text-center\">
+                <h2 class=\"text-2xl font-black navy-text mb-8\">دخول الأعضاء</h2>
+                <input type=\"email\" id=\"l-email\" placeholder=\"البريد\" class=\"form-input mb-4\">
+                <input type=\"password\" id=\"l-pass\" placeholder=\"الرمز\" class=\"form-input mb-6\">
+                <button onclick=\"handleLogin()\" class=\"w-full py-4 navy-bg text-white font-bold rounded-2xl\">دخول</button>
             </div>
         </section>
 
-        <!-- لوحة المدخلة -->
-        <section id="sec-entry" class="hidden space-y-6">
-            <h2 class="text-2xl font-black navy-text">إدخال الإنجاز اليومي</h2>
-            <div class="card-custom p-8">
-                <label class="block text-xs font-bold text-gray-400 mb-2 italic">1. اختاري الحلقة:</label>
-                <select id="entry-circle" class="w-full p-4 bg-gray-50 rounded-2xl mb-8 font-bold navy-text" onchange="loadStudentsForEntry()">
-                    <option value="">-- اختر من القائمة --</option>
-                    <option>البهور 1</option>
-                    <option>إشراق 5</option>
-                    <option>قبس 2</option>
-                </select>
-                <div id="students-list" class="space-y-4">
-                    <p class="text-center text-gray-300 italic text-xs">يرجى اختيار الحلقة لعرض الأسماء</p>
-                </div>
+        <!-- 4. لوحة القائدة -->
+        <section id=\"screen-leader\" class=\"hidden space-y-8\">
+            <div class=\"flex justify-between items-center\">
+                <h2 class=\"text-2xl font-black navy-text\">لوحة القائدة 🌸</h2>
+                <button onclick=\"exportStaff()\" class=\"p-3 bg-emerald-500 text-white rounded-xl text-xs font-bold\">تصدير الكوادر Excel</button>
             </div>
-        </section>
-
-        <!-- لوحة الطالبة -->
-        <section id="sec-student" class="hidden space-y-8">
-            <div class="flex justify-between items-center bg-white p-6 rounded-[40px] shadow-sm">
-                <h2 id="st-welcome" class="text-xl font-black navy-text">أهلاً بكِ 🌸</h2>
-                <div class="flex gap-2 text-2xl">👑 ⭐ 🏅</div>
-            </div>
-            <div id="juz-grid" class="card-custom p-8 grid grid-cols-5 md:grid-cols-10 gap-3"></div>
-            
-            <div class="card-custom p-8 text-center border-2 border-blue-100">
-                <h3 class="text-xs font-bold text-blue-900 mb-6 underline">مِحراب السماع والتدقيق</h3>
-                <select id="reciter" class="w-full p-4 bg-gray-50 rounded-2xl mb-6 text-sm font-bold">
-                    <option value="Ibrahim_Al_Akdar_128kbps">إبراهيم الأخضر</option>
-                    <option value="Husary_128kbps">محمود الحصري</option>
-                    <option value="Menshawi_128kbps">محمد المنشاوي</option>
-                    <option value="Abdul_Basit_Murattal_128kbps">عبدالباسط عبدالصمد</option>
-                </select>
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div><p class="text-[10px] text-gray-400 mb-1">من (سورة:آية)</p><div class=\"flex gap-1\"><input id=\"s-sur\" value=\"1\" class=\"w-full p-2 bg-purple-50 rounded-lg text-center font-bold\"> <input id=\"s-ay\" value=\"1\" class=\"w-full p-2 bg-purple-50 rounded-lg text-center font-bold\"></div></div>
-                    <div><p class=\"text-[10px] text-gray-400 mb-1\">إلى (سورة:آية)</p><div class=\"flex gap-1\"><input id=\"e-sur\" value=\"1\" class=\"w-full p-2 bg-purple-50 rounded-lg text-center font-bold\"> <input id=\"e-ay\" value=\"7\" class=\"w-full p-2 bg-purple-50 rounded-lg text-center font-bold\"></div></div>
+            <div class=\"grid grid-cols-1 md:grid-cols-2 gap-6\">
+                <div class=\"card-custom p-8 border-r-8 border-purple-500\">
+                    <h4 class=\"font-bold mb-4\">إدارة المتجر</h4>
+                    <input id=\"st-name\" placeholder=\"اسم المنتج\" class=\"form-input mb-2\">
+                    <input id=\"st-price\" placeholder=\"السعر\" class=\"form-input mb-4\">
+                    <button onclick=\"addStore()\" class=\"w-full py-3 navy-bg text-white rounded-xl\">نشر</button>
                 </div>
-                <button onclick="playRange()" class="w-20 h-20 bg-blue-600 text-white rounded-full shadow-xl flex items-center justify-center text-3xl mx-auto"><i id="play-icon" class="fas fa-play"></i></button>
-                <audio id="q-player"></audio>
+                <div class=\"card-custom p-8 border-r-8 border-blue-500\">
+                    <h4 class=\"font-bold mb-4\">طلبات التسجيل الجديدة</h4>
+                    <div id=\"pending-list\" class=\"text-xs text-gray-400\">لا يوجد طلبات حالياً</div>
+                </div>
             </div>
         </section>
     </main>
@@ -162,114 +111,58 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c2ZkY3lmamhoanlhZ2lldHRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI1NTcsImV4cCI6MjA5NDg4ODU1N30.i7zRKjAxs2jLOaPTN8ssOExhqurIOte5MkrzvpRbBiA';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let currentUser = null;
-        let myRoles = [];
-        let audioList = [];
-        let aIndex = 0;
+        let user = null; let regType = '';
+
+        function showScreen(id) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('screen-' + id).classList.remove('hidden');
+            if(window.innerWidth < 1024) toggleSidebar();
+        }
+
+        async function setRegType(type) {
+            regType = type;
+            document.getElementById('regForm').classList.remove('hidden');
+            if(type === 'staff') {
+                document.getElementById('staff-fields').classList.remove('hidden');
+                const { data } = await _supabase.from('circles').select('id, name');
+                const sel = document.getElementById('reg-circle');
+                sel.innerHTML = data.map(c => `<option value=\"${c.id}\">${c.name}</option>`).join('');
+            } else {
+                document.getElementById('staff-fields').classList.add('hidden');
+            }
+        }
+
+        async function submitRegistration() {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-pass').value;
+            const { data: u, error } = await _supabase.from('users_meta').insert([{ full_name: name, email: email, password: pass, phone: document.getElementById('reg-phone').value }]).select().single();
+            
+            if(u) {
+                const role = regType === 'staff' ? document.getElementById('reg-role').value : 'طالبة';
+                const circle = regType === 'staff' ? document.getElementById('reg-circle').value : null;
+                await _supabase.from('user_roles').insert([{ user_id: u.id, role: role, circle_id: circle, is_active: (regType === 'staff') }]);
+                alert('تم تقديم طلبك بنجاح!');
+                showScreen('home');
+            }
+        }
 
         async function handleLogin() {
-            const email = document.getElementById('in-email').value.trim();
-            const pass = document.getElementById('in-pass').value;
-            const err = document.getElementById('login-err');
-
-            const { data: u, error } = await _supabase.from('users_meta').select('*').eq('email', email).eq('password', pass).single();
-            
-            if (error || !u) {
-                err.innerText = "تأكدي من البريد وكلمة السر";
-                return;
-            }
-
+            const email = document.getElementById('l-email').value;
+            const pass = document.getElementById('l-pass').value;
+            const { data: u } = await _supabase.from('users_meta').select('*').eq('email', email).eq('password', pass).single();
+            if(!u) return alert('خطأ!');
             const { data: r } = await _supabase.from('user_roles').select('*').eq('user_id', u.id);
-            currentUser = u;
-            myRoles = r;
-            
-            launchSystem();
-        }
-
-        function launchSystem() {
-            document.getElementById('sec-login').classList.add('hidden');
-            document.getElementById('userCard').classList.remove('hidden');
-            document.getElementById('topTicker').classList.remove('hidden');
-            document.getElementById('dispName').innerText = currentUser.full_name;
-
-            const roleSwitcher = document.getElementById('roleSwitcherArea');
-            const roleButtons = document.getElementById('roleButtons');
-            
-            if (myRoles.length > 1) {
-                roleSwitcher.classList.remove('hidden');
-                roleButtons.innerHTML = '';
-                myRoles.forEach(r => {
-                    const btn = document.createElement('button');
-                    btn.className = 'p-3 bg-purple-50 text-[10px] font-bold navy-text rounded-2xl hover:bg-purple-100';
-                    btn.innerText = r.role;
-                    btn.onclick = () => showRoleUI(r.role);
-                    roleButtons.appendChild(btn);
-                });
-            }
-            
-            showRoleUI(myRoles[0].role);
-        }
-
-        function showRoleUI(role) {
-            document.getElementById('dispRole').innerText = role;
-            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
-            
-            if (role === 'قائدة') document.getElementById('sec-leader').classList.remove('hidden');
-            else if (role === 'مدخلة') document.getElementById('sec-entry').classList.remove('hidden');
-            else if (role === 'طالبة') {
-                document.getElementById('sec-student').classList.remove('hidden');
-                document.getElementById('st-welcome').innerText = `أهلاً بكِ، ${currentUser.full_name.split(' ')[0]} 🌸`;
-                renderJuzMap();
-            }
-        }
-
-        function playRange() {
-            const q = document.getElementById('reciter').value;
-            const ss = document.getElementById('s-sur').value;
-            const sa = parseInt(document.getElementById('s-ay').value);
-            const ea = parseInt(document.getElementById('e-ay').value);
-            const player = document.getElementById('q-player');
-            
-            audioList = [];
-            for (let i = sa; i <= ea; i++) {
-                audioList.push(`https://www.everyayah.com/data/${q}/${ss.padStart(3,'0')}${i.toString().padStart(3,'0')}.mp3`);
-            }
-            aIndex = 0;
-            playNextAyah();
-            document.getElementById('play-icon').className = 'fas fa-pause';
-        }
-
-        function playNextAyah() {
-            const p = document.getElementById('q-player');
-            if (aIndex < audioList.length) {
-                p.src = audioList[aIndex];
-                p.play();
-                p.onended = () => { aIndex++; playNextAyah(); };
-            } else {
-                document.getElementById('play-icon').className = 'fas fa-play';
-            }
-        }
-
-        function renderJuzMap() {
-            const grid = document.getElementById('juz-grid');
-            grid.innerHTML = '';
-            for (let i = 1; i <= 30; i++) {
-                const b = document.createElement('div');
-                b.className = `juz-box ${i <= 8 ? 'juz-done' : ''}`;
-                b.innerText = i;
-                grid.appendChild(b);
-            }
+            user = u;
+            document.getElementById('userProfile').classList.remove('hidden');
+            document.getElementById('displayUserName').innerText = u.full_name;
+            document.getElementById('displayUserRole').innerText = r[0].role;
+            if(r[0].role === 'قائدة') showScreen('leader');
+            else showScreen('home');
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-
-        async function exportFullExcel() {
-            const { data } = await _supabase.from('users_meta').select('*');
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Students");
-            XLSX.writeFile(wb, "Sana_AlAy_Full_Export.xlsx");
-        }
+        function logout() { location.reload(); }
     </script>
 </body>
-      </html>
+    </html>
