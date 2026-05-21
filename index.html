@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مقرأة سَنا الآي - نظام الإدارة</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Tajawal', sans-serif; font-style: normal !important; }
+        body { background-color: #fcfaff; }
+        .navy-bg { background-color: #2d3a6d; }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen p-4">
+
+    <div class="max-w-md w-full bg-white p-10 rounded-[40px] shadow-2xl border border-purple-50 text-center">
+        <img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" alt="سنا الآي" class="w-24 mx-auto mb-6">
+        <h2 class="text-2xl font-black text-[#2d3a6d] mb-2">منظومة سَنا الآي</h2>
+        <p class="text-xs text-purple-400 font-bold mb-8">في سَـنَـا الآي ورُبَـاه 🌧️💜  </p>
+
+        <div id="loginForm" class="space-y-4">
+            <input type="email" id="email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-2xl bg-gray-50 border-none outline-none ring-1 ring-gray-100 focus:ring-2 focus:ring-purple-400 text-sm">
+            <input type="password" id="password" placeholder="كلمة المرور" class="w-full p-4 rounded-2xl bg-gray-50 border-none outline-none ring-1 ring-gray-100 focus:ring-2 focus:ring-purple-400 text-sm">
+            <button onclick="handleLogin()" class="w-full py-4 navy-bg text-white font-bold rounded-2xl shadow-lg hover:opacity-90 transition">الدخول للمنظومة</button>
+        </div>
+        
+        <p id="msg" class="mt-4 text-xs font-bold text-red-500"></p>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://ftsfdcyfjhhjyagietts.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c2ZkY3lmamhoanlhZ2lldHRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI1NTcsImV4cCI6MjA5NDg4ODU1N30.i7zRKjAxs2jLOaPTN8ssOExhqurIOte5MkrzvpRbBiA';
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('msg');
+            msg.innerText = "جاري التحقق...";
+
+            const { data, error } = await _supabase
+                .from('users_meta')
+                .select('*')
+                .eq('email', email)
+                .eq('password', password)
+                .single();
+
+            if (error || !data) {
+                msg.innerText = "خطأ: البريد أو كلمة المرور غير صحيحة";
+            } else {
+                msg.classList.remove('text-red-500');
+                msg.classList.add('text-green-500');
+                msg.innerText = "تم الدخول بنجاح! جاري تحويلك...";
+            }
+        }
+    </script>
+</body>
+</html>
