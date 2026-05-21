@@ -2,193 +2,80 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة سَنا الآي</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;900&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Tajawal', sans-serif !important; font-style: normal !important; transition: 0.3s; }
-        body { background-color: #f8faff; margin: 0; }
+        * { font-family: 'Tajawal', sans-serif !important; font-style: normal !important; }
+        body { background-color: #f8faff; }
         .navy-bg { background-color: #2d3a6d; }
-        .navy-text { color: #2d3a6d; }
-        .sidebar { width: 280px; height: 100vh; background: white; border-left: 2px solid #f3e8ff; position: fixed; right: 0; top: 0; z-index: 100; transform: translateX(100%); }
-        .sidebar.active { transform: translateX(0); }
-        .main-content { margin-right: 0; width: 100%; padding: 20px; min-height: 100vh; }
-        @media (min-width: 1024px) { .sidebar { transform: translateX(0); } .main-content { margin-right: 280px; } }
-        .card-custom { background: white; border-radius: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
-        .hidden { display: none !important; }
-        .form-input { width: 100%; padding: 12px; border-radius: 15px; background: #f9fafb; border: 1px solid #e5e7eb; outline: none; font-size: 14px; }
     </style>
 </head>
 <body>
-
-    <!-- زر القائمة للجوال -->
-    <button onclick="toggleSidebar()" class="fixed top-4 right-4 z-[110] bg-white p-3 rounded-2xl shadow-lg lg:hidden"><i class="fas fa-bars navy-text"></i></button>
-
-    <aside id="sidebar" class="sidebar p-6 flex flex-col gap-6 shadow-xl text-center">
-        <img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" class="w-20 mx-auto mb-2">
-        <h1 class="text-lg font-black navy-text">سَنا الآي</h1>
-        
-        <div id="sideNavLinks" class="flex flex-col gap-2 mt-4 text-right">
-            <button onclick="showScreen('home')" class="p-3 font-bold text-sm navy-text hover:bg-purple-50 rounded-xl"><i class="fas fa-home ml-2"></i> الرئيسية</button>
-            <button onclick="showScreen('register')" class="p-3 font-bold text-sm navy-text hover:bg-purple-50 rounded-xl"><i class="fas fa-user-plus ml-2"></i> ركن التسجيل</button>
-            <button onclick="showScreen('login')" id="sideLoginBtn" class="p-3 font-bold text-sm navy-text hover:bg-purple-50 rounded-xl"><i class="fas fa-sign-in-alt ml-2"></i> دخول الأعضاء</button>
+    <div id="app">
+        <!-- صفحة الدخول -->
+        <div id="login-screen" class="flex items-center justify-center h-screen">
+            <div class="bg-white p-10 rounded-[40px] shadow-2xl text-center w-full max-w-sm border border-purple-100">
+                <h2 class="text-2xl font-black text-[#2d3a6d] mb-6">دخول القائدة</h2>
+                <input type="email" id="email" placeholder="البريد الإلكتروني" class="w-full p-4 mb-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100 focus:ring-2 focus:ring-purple-400">
+                <input type="password" id="pass" placeholder="كلمة المرور" class="w-full p-4 mb-6 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100 focus:ring-2 focus:ring-purple-400">
+                <button onclick="handleLogin()" class="w-full py-4 navy-bg text-white font-bold rounded-2xl">تسجيل الدخول</button>
+                <p id="msg" class="text-red-500 text-xs mt-4"></p>
+            </div>
         </div>
 
-        <div id="userBadge" class="hidden bg-purple-50 p-4 rounded-3xl mt-4">
-            <p id="uName" class="text-xs font-bold navy-text"></p>
-            <p id="uRole" class="text-[9px] text-purple-500 font-black"></p>
+        <!-- لوحة القائدة (مخفية) -->
+        <div id="leader-screen" class="hidden p-6">
+            <header class="flex justify-between items-center mb-10">
+                <h1 class="text-2xl font-black text-[#2d3a6d]">لوحة تحكم القائدة 🌸</h1>
+                <button onclick="location.reload()" class="text-red-500 text-xs font-bold">خروج</button>
+            </header>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-8 rounded-[35px] shadow-sm border-r-8 border-purple-500">
+                    <p class="text-gray-400 text-xs font-bold uppercase">إجمالي أوجه الحفظ</p>
+                    <h3 class="text-4xl font-black text-[#2d3a6d] mt-2">145.5</h3>
+                </div>
+                <div class="bg-white p-8 rounded-[35px] shadow-sm border-r-8 border-red-500">
+                    <p class="text-gray-400 text-xs font-bold uppercase">إنذارات غياب</p>
+                    <h3 class="text-4xl font-black text-[#2d3a6d] mt-2">5</h3>
+                </div>
+            </div>
+
+            <div class="mt-10 bg-white p-8 rounded-[40px] border-2 border-dashed border-purple-100 text-center">
+                <h4 class="font-bold text-[#2d3a6d]">باني المتجر المطور</h4>
+                <p class=\"text-xs text-gray-400 mt-2\">جاري تفعيل إمكانية إضافة الصور والمنتجات...</p>
+            </div>
         </div>
-
-        <button onclick="location.reload()" id="logoutBtn" class="hidden mt-auto p-4 text-red-400 text-xs font-bold border-t flex items-center gap-2"><i class="fas fa-power-off"></i> خروج</button>
-    </aside>
-
-    <main class="main-content">
-        
-        <!-- 1. الشاشة الرئيسية والمتجر -->
-        <section id="screen-home" class="space-y-12">
-            <div class="text-center py-20 bg-gradient-to-b from-purple-50 to-white rounded-[50px]">
-                <h1 class="text-4xl font-black navy-text mb-4 underline decoration-blue-200">مقرأة سَنا الآي ☁️</h1>
-                <p class="text-gray-500 font-bold italic">نورٌ يتلوه نور - المنظومة التقنية المتكاملة</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                <div class="card-custom p-8 text-center border-t-8 border-purple-500">
-                    <h3 class="font-black navy-text text-xl mb-4">باقة المنظومة الماسية</h3>
-                    <p class="text-gray-400 text-xs mb-6 leading-relaxed">امتلكي نسخة خاصة من نظام سَنا الآي لمقرأتكِ بهويتكِ وشعاركِ الخاص.</p>
-                    <button class="w-full py-4 navy-bg text-white rounded-2xl font-bold">اطلبي عبر واتساب</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- 2. ركن التسجيل المطور -->
-        <section id="screen-register" class="hidden max-w-2xl mx-auto">
-            <div class="card-custom p-10 text-center">
-                <h2 class="text-2xl font-black navy-text mb-8">تسجيل جديد 🌸</h2>
-                <div class="grid grid-cols-2 gap-4 mb-8">
-                    <button onclick="regAs('staff')" id="reg-staff" class="p-4 border-2 rounded-3xl font-bold navy-text">كادر متطوع</button>
-                    <button onclick="regAs('student')" id="reg-student" class="p-4 border-2 rounded-3xl font-bold navy-text">طالبة</button>
-                </div>
-                <div id="regForm" class="hidden space-y-4 text-right">
-                    <input type="text" id="rn" placeholder="الاسم الرباعي" class="form-input">
-                    <input type="email" id="re" placeholder="البريد الإلكتروني" class="form-input">
-                    <input type="password" id="rp" placeholder="كلمة المرور" class="form-input">
-                    <div id="staffOptions" class="hidden space-y-4">
-                        <select id="rr" class="form-input"><option>معلمة</option><option>مشرفة</option><option>مدخلة</option></select>
-                        <select id=\"rc\" class=\"form-input\"><option>جاري تحميل الحلقات...</option></select>
-                    </div>
-                    <button onclick="doRegister()" class="w-full py-4 navy-bg text-white font-bold rounded-2xl shadow-lg">إرسال البيانات</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. الدخول -->
-        <section id="screen-login" class="hidden flex items-center justify-center min-h-[70vh]">
-            <div class="max-w-md w-full bg-white p-10 rounded-[50px] shadow-2xl text-center">
-                <img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" class="w-20 mx-auto mb-6">
-                <h2 class="text-2xl font-black navy-text mb-8">دخول الأعضاء</h2>
-                <input type="email" id="le" placeholder="البريد" class="form-input mb-4 text-center">
-                <input type="password" id="lp" placeholder="الرمز" class="form-input mb-6 text-center">
-                <button onclick="doLogin()" id="loginBtn" class="w-full py-4 navy-bg text-white font-bold rounded-2xl shadow-lg">دخول</button>
-                <p id="lmsg" class="text-[10px] text-red-500 mt-4 font-bold"></p>
-            </div>
-        </section>
-
-        <!-- 4. لوحة القائدة -->
-        <section id="screen-leader" class="hidden space-y-8">
-            <h2 class="text-2xl font-black navy-text">لوحة التحكم (القائدة) 🌸</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="card-custom p-8 border-r-8 border-purple-500"><p class="text-gray-400 text-[10px] font-bold">أوجه الحفظ</p><h3 class=\"text-3xl font-black\">145.5</h3></div>
-                <div class=\"card-custom p-8 border-r-8 border-red-500\"><p class=\"text-gray-400 text-[10px] font-bold\">الغياب</p><h3 class=\"text-3xl font-black\">5</h3></div>
-                <button onclick=\"exportData()\" class=\"navy-bg text-white p-8 rounded-[40px] font-bold shadow-lg\"><i class=\"fas fa-file-excel ml-2\"></i> تصدير البيانات</button>
-            </div>
-        </section>
-
-        <!-- 5. واجهة الطالبة -->
-        <section id=\"screen-student\" class=\"hidden space-y-8\">
-            <div id=\"juzContainer\" class=\"card-custom p-8 grid grid-cols-5 md:grid-cols-10 gap-3\"></div>
-            <div class=\"card-custom p-8 text-center border-2 border-blue-50\">
-                <h3 class=\"font-black text-blue-900 mb-6\">مِحراب التلاوة</h3>
-                <select id=\"sq\" class=\"form-input mb-4 text-center font-bold\"></select>
-                <div class=\"grid grid-cols-2 gap-2 mb-6\">
-                    <input type=\"number\" id=\"ss\" value=\"1\" class=\"p-3 bg-gray-50 rounded-xl text-center\">
-                    <input type=\"number\" id=\"sa\" value=\"1\" class=\"p-3 bg-gray-50 rounded-xl text-center\">
-                </div>
-                <button onclick=\"playQ()\" class=\"w-20 h-20 bg-blue-600 text-white rounded-full shadow-2xl\"><i id=\"pi\" class=\"fas fa-play\"></i></button>
-                <audio id=\"aud\"></audio>
-            </div>
-        </section>
-
-    </main>
+    </div>
 
     <script>
         const supabaseUrl = 'https://ftsfdcyfjhhjyagietts.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c2ZkY3lmamhoanlhZ2lldHRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI1NTcsImV4cCI6MjA5NDg4ODU1N30.i7zRKjAxs2jLOaPTN8ssOExhqurIOte5MkrzvpRbBiA';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let me = null; let myRole = ''; let type = '';
+        async function handleLogin() {
+            const e = document.getElementById('email').value.trim();
+            const p = document.getElementById('pass').value;
+            const m = document.getElementById('msg');
+            m.innerText = "جاري التحقق...";
 
-        function showScreen(id) {
-            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('screen-' + id).classList.remove('hidden');
-            if(window.innerWidth < 1024) toggleSidebar();
-        }
+            const { data, error } = await _supabase.from('users_meta').select('id, full_name').eq('email', e).eq('password', p).single();
 
-        async function regAs(r) {
-            type = r; document.getElementById('regForm').classList.remove('hidden');
-            if(r === 'staff') {
-                document.getElementById('staffOptions').classList.remove('hidden');
-                const { data } = await _supabase.from('circles').select('*');
-                document.getElementById('rc').innerHTML = data.map(c => `<option value=\"${c.id}\">${c.name}</option>`).join('');
+            if (error || !data) {
+                m.innerText = "البريد أو الرمز خطأ!";
+                return;
+            }
+
+            const { data: roleData } = await _supabase.from('user_roles').select('role').eq('user_id', data.id).single();
+
+            if (roleData && (roleData.role.includes("قائدة") || roleData.role === "قائدة")) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('leader-screen').classList.remove('hidden');
+            } else {
+                m.innerText = "عذراً، هذا الحساب ليس له صلاحية قائدة. الرتبة الحالية: " + (roleData ? roleData.role : "طالبة");
             }
         }
-
-        async function doLogin() {
-            const e = document.getElementById('le').value.trim();
-            const p = document.getElementById('lp').value;
-            const m = document.getElementById('lmsg'); m.innerText = 'جاري التحقق...';
-            
-            const { data: u } = await _supabase.from('users_meta').select('*').eq('email', e).eq('password', p).single();
-            if(!u) { m.innerText = 'خطأ في الإيميل أو الرمز!'; return; }
-            
-            const { data: r } = await _supabase.from('user_roles').select('*').eq('user_id', u.id).single();
-            me = u; myRole = r ? r.role.trim() : 'طالبة';
-            
-            document.getElementById('sideLoginBtn').classList.add('hidden');
-            document.getElementById('userBadge').classList.remove('hidden');
-            document.getElementById('uName').innerText = me.full_name;
-            document.getElementById('uRole').innerText = myRole;
-            document.getElementById('logoutBtn').classList.remove('hidden');
-
-            if(myRole === 'قائدة') showScreen('leader');
-            else { showScreen('student'); renderJuz(); loadQaris(); }
-        }
-
-        function renderJuz() {
-            const c = document.getElementById('juzContainer'); c.innerHTML = '';
-            for(let i=1; i<=30; i++) {
-                const b = document.createElement('div');
-                b.className = `juz-box ${i<=3 ? 'juz-done' : ''}`; b.innerText = i;
-                c.appendChild(b);
-            }
-        }
-
-        function loadQaris() {
-            const list = [['Menshawi_128kbps','المنشاوي'],['Husary_128kbps','الحصري'],['Ibrahim_Al_Akdar_128kbps','الأخضر']];
-            document.getElementById('sq').innerHTML = list.map(q => `<option value=\"${q[0]}\">${q[1]}</option>`).join('');
-        }
-
-        function playQ() {
-            const q = document.getElementById('sq').value;
-            const s = document.getElementById('ss').value.padStart(3,'0');
-            const a = document.getElementById('sa').value.padStart(3,'0');
-            const aud = document.getElementById('aud');
-            aud.src = `https://www.everyayah.com/data/${q}/${s}${a}.mp3`;
-            aud.play();
-        }
-
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
     </script>
 </body>
 </html>
