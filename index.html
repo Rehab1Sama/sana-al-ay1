@@ -2,80 +2,186 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة سَنا الآي - لوحة القائدة</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        * { font-family: 'Tajawal', sans-serif !important; font-style: normal !important; }
-        body { background-color: #f8faff; }
+        /* إعدادات الخط الرسمي والمستقيم */
+        * { 
+            font-family: 'Tajawal', sans-serif !important; 
+            font-style: normal !important; 
+            letter-spacing: 0 !important;
+        }
+        body { background-color: #fcfaff; margin: 0; display: flex; }
+        
         .navy-bg { background-color: #2d3a6d; }
+        .navy-text { color: #2d3a6d; }
+        
+        /* الشريط الجانبي الرسمي */
+        .sidebar { 
+            width: 280px; 
+            height: 100vh; 
+            background: white; 
+            border-left: 2px solid #f3f0ff; 
+            position: fixed; 
+            right: 0; 
+            top: 0; 
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content { 
+            margin-right: 280px; 
+            width: 100%; 
+            padding: 40px; 
+        }
+
+        .card-stat {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.02);
+            border-right: 8px solid #2d3a6d;
+        }
+
+        .btn-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        .btn-nav:hover, .btn-nav.active {
+            background-color: #f3f0ff;
+            color: #2d3a6d;
+        }
+
+        input, select, textarea {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            padding: 12px !important;
+            outline: none !important;
+            font-size: 14px !important;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar { display: none; }
+            .main-content { margin-right: 0; padding: 20px; }
+        }
     </style>
 </head>
 <body>
-    <div id="app">
-        <!-- صفحة الدخول -->
-        <div id="login-screen" class="flex items-center justify-center h-screen">
-            <div class="bg-white p-10 rounded-[40px] shadow-2xl text-center w-full max-w-sm border border-purple-100">
-                <h2 class="text-2xl font-black text-[#2d3a6d] mb-6">دخول القائدة</h2>
-                <input type="email" id="email" placeholder="البريد الإلكتروني" class="w-full p-4 mb-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100 focus:ring-2 focus:ring-purple-400">
-                <input type="password" id="pass" placeholder="كلمة المرور" class="w-full p-4 mb-6 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100 focus:ring-2 focus:ring-purple-400">
-                <button onclick="handleLogin()" class="w-full py-4 navy-bg text-white font-bold rounded-2xl">تسجيل الدخول</button>
-                <p id="msg" class="text-red-500 text-xs mt-4"></p>
+
+    <!-- الشريط الجانبي -->
+    <aside class=\"sidebar p-6 shadow-xl\">
+        <div class=\"text-center mb-8 border-b pb-6\">
+            <img src=\"https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg\" class=\"w-24 mx-auto mb-4\">
+            <h1 class=\"text-xl font-black navy-text tracking-tight\">مقرأة سَنا الآي</h1>
+            <p class=\"text-[10px] text-purple-400 font-bold uppercase mt-1\">المنظومة الإدارية</p>
+        </div>
+
+        <nav class=\"flex flex-col gap-2\">
+            <button class=\"btn-nav active\"><i class=\"fas fa-chart-pie\"></i> الإحصائيات العامة</button>
+            <button class=\"btn-nav\"><i class=\"fas fa-users\"></i> إدارة الكوادر</button>
+            <button class=\"btn-nav\"><i class=\"fas fa-user-graduate\"></i> شؤون الطالبات</button>
+            <button class=\"btn-nav\"><i class=\"fas fa-store\"></i> متجر المنظومة</button>
+            <button class=\"btn-nav\"><i class=\"fas fa-calendar-alt\"></i> التقويم الدراسي</button>
+        </nav>
+
+        <div class=\"mt-auto border-t pt-4\">
+            <div class=\"bg-blue-50 p-4 rounded-2xl mb-4\">
+                <p class=\"text-[10px] font-bold text-blue-600 mb-1\">موعد الاختبار القادم:</p>
+                <p class=\"text-lg font-black text-blue-800\">12 يوم متبقي</p>
+            </div>
+            <button onclick=\"location.reload()\" class=\"w-full text-right p-2 text-red-500 font-bold text-xs\"><i class=\"fas fa-sign-out-alt ml-2\"></i> تسجيل الخروج</button>
+        </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class=\"main-content\">
+        <header class=\"flex justify-between items-center mb-10\">
+            <div>
+                <h2 class=\"text-2xl font-black navy-text\">لوحة التحكم الرسمية 🌸</h2>
+                <p class=\"text-gray-400 text-sm mt-1\">أهلاً بكِ قائدة المقرأة، إليكِ تقرير الأداء الحالي.</p>
+            </div>
+            <div class=\"flex gap-3\">
+                <button class=\"bg-white p-3 rounded-xl border shadow-sm text-gray-400\"><i class=\"fas fa-bell\"></i></button>
+                <div class=\"bg-white p-2 px-4 rounded-xl border shadow-sm flex items-center gap-3\">
+                    <span class=\"text-xs font-bold navy-text\">أ. رحاب</span>
+                    <div class=\"w-8 h-8 navy-bg rounded-full\"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- كروت الإحصائيات -->
+        <div class=\"grid grid-cols-1 md:grid-cols-3 gap-6 mb-12\">
+            <div class=\"card-stat border-purple-500\">
+                <p class=\"text-gray-400 text-xs font-bold\">إجمالي أوجه الحفظ المنجزة</p>
+                <h3 class=\"text-4xl font-black navy-text mt-2\">145.5</h3>
+            </div>
+            <div class=\"card-stat border-red-400\">
+                <p class=\"text-gray-400 text-xs font-bold\">إنذارات الغياب الجماعية</p>
+                <h3 class=\"text-4xl font-black navy-text mt-2\">5</h3>
+            </div>
+            <div class=\"card-stat border-blue-400\">
+                <p class=\"text-gray-400 text-xs font-bold\">تقصيرات قيد المتابعة</p>
+                <h3 class=\"text-4xl font-black navy-text mt-2\">12</h3>
             </div>
         </div>
 
-        <!-- لوحة القائدة (مخفية) -->
-        <div id="leader-screen" class="hidden p-6">
-            <header class="flex justify-between items-center mb-10">
-                <h1 class="text-2xl font-black text-[#2d3a6d]">لوحة تحكم القائدة 🌸</h1>
-                <button onclick="location.reload()" class="text-red-500 text-xs font-bold">خروج</button>
-            </header>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-8 rounded-[35px] shadow-sm border-r-8 border-purple-500">
-                    <p class="text-gray-400 text-xs font-bold uppercase">إجمالي أوجه الحفظ</p>
-                    <h3 class="text-4xl font-black text-[#2d3a6d] mt-2">145.5</h3>
+        <!-- قسم المتجر المطور -->
+        <section class=\"bg-white p-10 rounded-[40px] border shadow-sm\">
+            <h3 class=\"text-xl font-black navy-text mb-8 flex items-center\">
+                <i class=\"fas fa-plus-circle ml-2 text-purple-600\"></i> باني المتجر والمنتجات الرقمية
+            </h3>
+            <div class=\"grid grid-cols-1 md:grid-cols-3 gap-6\">
+                <div class=\"flex flex-col\">
+                    <label class=\"text-[10px] font-bold text-gray-400 mb-2\">اسم المنتج أو الباقة:</label>
+                    <input type=\"text\" id=\"pName\" placeholder=\"مثلاً: الباقة الماسية\">
                 </div>
-                <div class="bg-white p-8 rounded-[35px] shadow-sm border-r-8 border-red-500">
-                    <p class="text-gray-400 text-xs font-bold uppercase">إنذارات غياب</p>
-                    <h3 class="text-4xl font-black text-[#2d3a6d] mt-2">5</h3>
+                <div class=\"flex flex-col\">
+                    <label class=\"text-[10px] font-bold text-gray-400 mb-2\">السعر (بالريال):</label>
+                    <input type=\"number\" id=\"pPrice\" placeholder=\"1500\">
+                </div>
+                <div class=\"flex flex-col\">
+                    <label class=\"text-[10px] font-bold text-gray-400 mb-2\">رابط الصورة التوضيحية:</label>
+                    <input type=\"text\" id=\"pImg\" placeholder=\"رابط الصورة المباشر\">
+                </div>
+                <div class=\"md:col-span-3 flex flex-col\">
+                    <label class=\"text-[10px] font-bold text-gray-400 mb-2\">المواصفات (كل ميزة في سطر):</label>
+                    <textarea id=\"pDesc\" class=\"h-32\" placeholder=\"تخصيص الهوية بالكامل&#10;تقارير المانحين\"></textarea>
                 </div>
             </div>
+            <button onclick=\"alert('تم تحديث المتجر بنجاح!')\" class=\"w-full mt-8 py-4 navy-bg text-white font-bold rounded-2xl shadow-lg hover:opacity-95\">نشر المنتج في المتجر فوراً</button>
+        </section>
 
-            <div class="mt-10 bg-white p-8 rounded-[40px] border-2 border-dashed border-purple-100 text-center">
-                <h4 class="font-bold text-[#2d3a6d]">باني المتجر المطور</h4>
-                <p class=\"text-xs text-gray-400 mt-2\">جاري تفعيل إمكانية إضافة الصور والمنتجات...</p>
+        <!-- أزرار الإكسل والتقارير -->
+        <div class=\"grid grid-cols-1 md:grid-cols-2 gap-6 mt-12\">
+            <div class=\"bg-emerald-50 p-6 rounded-3xl border-2 border-dashed border-emerald-200 flex justify-between items-center cursor-pointer\">
+                <div>
+                    <h4 class=\"font-black text-emerald-900\">تصدير كشوفات الطالبات</h4>
+                    <p class=\"text-[10px] text-emerald-600\">تحميل ملف Excel شامل لجميع المسارات</p>
+                </div>
+                <i class=\"fas fa-file-excel text-3xl text-emerald-500\"></i>
+            </div>
+            <div class=\"bg-blue-50 p-6 rounded-3xl border-2 border-dashed border-blue-200 flex justify-between items-center cursor-pointer\">
+                <div>
+                    <h4 class=\"font-black text-blue-900\">كشف المتطوعات (الكوادر)</h4>
+                    <p class=\"text-[10px] text-blue-600\">بيانات المعلمات والمدخلات والمسؤولات</p>
+                </div>
+                <i class=\"fas fa-user-tie text-3xl text-blue-500\"></i>
             </div>
         </div>
-    </div>
+    </main>
 
-    <script>
-        const supabaseUrl = 'https://ftsfdcyfjhhjyagietts.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c2ZkY3lmamhoanlhZ2lldHRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI1NTcsImV4cCI6MjA5NDg4ODU1N30.i7zRKjAxs2jLOaPTN8ssOExhqurIOte5MkrzvpRbBiA';
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-        async function handleLogin() {
-            const e = document.getElementById('email').value.trim();
-            const p = document.getElementById('pass').value;
-            const m = document.getElementById('msg');
-            m.innerText = "جاري التحقق...";
-
-            const { data, error } = await _supabase.from('users_meta').select('id, full_name').eq('email', e).eq('password', p).single();
-
-            if (error || !data) {
-                m.innerText = "البريد أو الرمز خطأ!";
-                return;
-            }
-
-            const { data: roleData } = await _supabase.from('user_roles').select('role').eq('user_id', data.id).single();
-
-            if (roleData && (roleData.role.includes("قائدة") || roleData.role === "قائدة")) {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('leader-screen').classList.remove('hidden');
-            } else {
-                m.innerText = "عذراً، هذا الحساب ليس له صلاحية قائدة. الرتبة الحالية: " + (roleData ? roleData.role : "طالبة");
-            }
-        }
-    </script>
 </body>
-</html>
+                        </html>
