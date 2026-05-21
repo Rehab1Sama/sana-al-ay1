@@ -6,125 +6,108 @@
     <title>منظومة سَنا الآي</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        * { font-family: 'Tajawal', sans-serif !important; font-style: normal !important; transition: all 0.3s ease; }
-        body { background-color: #f8f7ff; margin: 0; }
-        .navy-blue { color: #2d3a6d; }
+        * { font-family: 'Tajawal', sans-serif !important; font-style: normal !important; }
+        body { background-color: #f8faff; margin: 0; }
         .navy-bg { background-color: #2d3a6d; }
-        .sidebar { width: 280px; height: 100vh; background: white; border-left: 2px solid #f3e8ff; position: fixed; right: 0; top: 0; z-index: 100; transform: translateX(100%); }
+        .navy-text { color: #2d3a6d; }
+        .card-custom { background: white; border-radius: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+        .sidebar { width: 280px; height: 100vh; background: white; border-left: 2px solid #f3e8ff; position: fixed; right: 0; top: 0; z-index: 100; transform: translateX(100%); transition: 0.3s; }
         .sidebar.active { transform: translateX(0); }
-        .main-content { margin-right: 0; width: 100%; padding: 20px; }
+        .main-content { margin-right: 0; width: 100%; padding: 20px; transition: 0.3s; }
         @media (min-width: 1024px) { .sidebar { transform: translateX(0); } .main-content { margin-right: 280px; } }
-        .card-custom { background: white; border-radius: 35px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
-        .juz-box { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 1px solid #eee; }
-        .juz-done { background: #8b5cf6; color: white; border-color: #8b5cf6; }
         .hidden { display: none !important; }
+        .juz-box { width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 1px solid #eee; }
+        .juz-done { background: #8b5cf6; color: white; border-color: #8b5cf6; }
     </style>
 </head>
 <body>
 
-    <!-- زر القائمة للجوال -->
-    <button onclick="toggleSidebar()" class="fixed top-4 right-4 z-[110] bg-white p-3 rounded-2xl shadow-lg lg:hidden">
-        <i class="fas fa-bars navy-blue"></i>
-    </button>
+    <button onclick="toggleSidebar()" class="fixed top-4 right-4 z-[110] bg-white p-3 rounded-2xl shadow-lg lg:hidden"><i class="fas fa-bars navy-text"></i></button>
 
-    <!-- الشريط الجانبي -->
     <aside id="sidebar" class="sidebar p-6 flex flex-col gap-6 shadow-xl">
-        <div class="text-center">
-            <img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" class="w-20 mx-auto mb-2">
-            <h1 class="text-lg font-black navy-blue">مقرأة سَنا الآي</h1>
+        <div class="text-center"><img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" class="w-20 mx-auto mb-2"><h1 class="text-lg font-black navy-text">سَنا الآي</h1></div>
+        <div id="userBadge" class="bg-purple-50 p-4 rounded-3xl text-center hidden">
+            <p id="dispName" class="text-xs font-bold navy-text">--</p>
+            <p id="dispRole" class="text-[9px] text-purple-500 font-bold uppercase"></p>
         </div>
-
-        <div id="userCard" class="bg-purple-50 p-4 rounded-3xl text-center hidden">
-            <p id="userNameDisplay" class="text-xs font-bold navy-blue">--</p>
-            <p id="userRoleDisplay" class="text-[10px] text-purple-500 font-bold uppercase italic"></p>
-        </div>
-
-        <nav class="flex flex-col gap-2 mt-4" id="navLinks">
-            <!-- الروابط تتغير حسب الرتبة -->
-        </nav>
-
-        <button onclick="logout()" class="mt-auto p-4 text-red-400 text-xs font-bold border-t flex items-center gap-2">
-            <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
-        </button>
+        <nav class="flex flex-col gap-2" id="sideNav"></nav>
+        <button onclick="location.reload()" class="mt-auto p-4 text-red-400 text-xs font-bold border-t flex items-center gap-2"><i class="fas fa-sign-out-alt"></i> خروج</button>
     </aside>
 
     <main class="main-content">
-        
-        <!-- 1. صفحة الدخول -->
-        <section id="loginSection" class="flex items-center justify-center min-h-[80vh]">
-            <div class="max-w-md w-full bg-white p-10 rounded-[50px] shadow-2xl text-center">
+        <!-- صفحة الدخول -->
+        <section id="sec-login" class="flex items-center justify-center min-h-[85vh]">
+            <div class="max-w-md w-full bg-white p-10 rounded-[50px] shadow-2xl text-center border border-purple-50">
                 <img src="https://i.ibb.co/GfyXZGkG/IMG-20260408-WA0004.jpg" class="w-24 mx-auto mb-6">
-                <h2 class="text-2xl font-black navy-blue mb-8">دخول المنظومة</h2>
+                <h2 class="text-2xl font-black navy-text mb-8">منظومة سَنا الآي</h2>
                 <div class="space-y-4">
-                    <input type="email" id="email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-2xl bg-gray-50 outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-purple-400">
-                    <input type="password" id="password" placeholder="كلمة المرور" class="w-full p-4 rounded-2xl bg-gray-50 outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-purple-400">
-                    <button onclick="handleLogin()" class="w-full py-4 navy-bg text-white font-bold rounded-2xl shadow-lg">دخول</button>
-                    <p id="loginMsg" class="text-[10px] text-red-500"></p>
+                    <input type="email" id="in-email" placeholder="البريد الإلكتروني" class="w-full p-4 rounded-2xl bg-gray-50 outline-none ring-1 ring-gray-100 focus:ring-2 focus:ring-purple-400">
+                    <input type="password" id="in-pass" placeholder="كلمة المرور" class="w-full p-4 rounded-2xl bg-gray-50 outline-none ring-1 ring-gray-100 focus:ring-2 focus:ring-purple-400">
+                    <button onclick="login()" class="w-full py-4 navy-bg text-white font-bold rounded-2xl shadow-lg hover:opacity-90">دخول</button>
+                    <p id="login-err" class="text-[10px] text-red-500"></p>
                 </div>
             </div>
         </section>
 
-        <!-- 2. لوحة القائدة -->
-        <section id="leaderDash" class="hidden space-y-8">
-            <h2 class="text-2xl font-black navy-blue">لوحة تحكم القائدة 🌸</h2>
+        <!-- لوحة القائدة -->
+        <section id="sec-leader" class="hidden space-y-8">
+            <h2 class="text-2xl font-black navy-text">لوحة التحكم الشاملة (القائدة) 🌸</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="card-custom p-8 border-r-8 border-purple-500">
-                    <p class="text-gray-400 text-[10px] font-bold">أوجه الحفظ اليوم</p>
-                    <h3 class="text-3xl font-black navy-blue mt-2">145.5</h3>
-                </div>
-                <div class="card-custom p-8 border-r-8 border-red-500">
-                    <p class="text-gray-400 text-[10px] font-bold">إنذارات غياب</p>
-                    <h3 class="text-3xl font-black navy-blue mt-2">5</h3>
-                </div>
-                <div class="card-custom p-8 border-r-8 border-blue-500">
-                    <p class="text-gray-400 text-[10px] font-bold">تقصيرات نشطة</p>
-                    <h3 class="text-3xl font-black navy-blue mt-2">12</h3>
-                </div>
-            </div>
-            <!-- أزرار الإدارة -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <button class="card-custom p-6 border-2 border-dashed border-emerald-200 navy-blue font-bold text-sm"><i class="fas fa-file-excel ml-2"></i> تصدير بيانات المقرأة</button>
-                <button class="card-custom p-6 border-2 border-dashed border-blue-200 navy-blue font-bold text-sm"><i class="fas fa-store ml-2"></i> إدارة المتجر</button>
+                <div class="card-custom p-8 border-r-8 border-purple-500"><p class="text-gray-400 text-[10px] font-bold uppercase">أوجه الحفظ اليوم</p><h3 class="text-3xl font-black navy-text mt-2">145.5</h3></div>
+                <div class="card-custom p-8 border-r-8 border-red-500"><p class="text-gray-400 text-[10px] font-bold uppercase">غيابات الطالبات</p><h3 class="text-3xl font-black navy-text mt-2">5</h3></div>
+                <div class="card-custom p-8 border-r-8 border-blue-500"><p class="text-gray-400 text-[10px] font-bold uppercase">مبيعات المتجر</p><h3 class="text-3xl font-black navy-text mt-2">3</h3></div>
             </div>
         </section>
 
-        <!-- 3. لوحة الطالبة -->
-        <section id="studentDash" class="hidden space-y-8">
-            <h2 class="text-2xl font-black navy-blue">صفحتي  🌸</h2>
-            <div id="juzMap" class="card-custom p-8 grid grid-cols-6 md:grid-cols-10 gap-3"></div>
+        <!-- لوحة مدخلة البيانات -->
+        <section id="sec-entry" class="hidden space-y-6">
+            <h2 class="text-2xl font-black navy-text">إدخال البيانات اليومي</h2>
+            <div class="card-custom p-8 space-y-6">
+                <select id="sel-circle" class="w-full p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100 font-bold" onchange="loadStudents()">
+                    <option value="">-- اختر الحلقة --</option>
+                    <option value="البهور 1">حلقة البهور 1</option>
+                </select>
+                <div id="list-students" class="space-y-4">
+                    <!-- الأسماء التي لم يتم إدخالها تظهر هنا -->
+                </div>
+            </div>
+        </section>
+
+        <!-- لوحة الطالبة -->
+        <section id="sec-student" class="hidden space-y-8">
+            <div class="flex justify-between items-center bg-white p-6 rounded-[40px] shadow-sm">
+                <h2 id="welcome-msg" class="text-xl font-black navy-text italic">أهلاً بكِ 🌸</h2>
+                <div class="flex gap-2 text-2xl">👑 ⭐</div>
+            </div>
             
-            <!-- مشغل القرآن الحقيقي -->
+            <!-- مشغل القرآن بالنطاق -->
             <div class="card-custom p-8 text-center border-2 border-blue-100">
-                 <h3 class="text-xs font-bold text-blue-900 mb-6 underline">مِحراب التلاوة والسماع</h3>
-                 
-                 <select id="qurraSelect" class="w-full p-4 bg-gray-50 rounded-2xl mb-6 text-sm font-bold outline-none border-none ring-1 ring-gray-100">
-                     <option value="Ibrahim_Al_Akdar_128kbps">الشيخ إبراهيم الأخضر</option>
-                     <option value="Husary_128kbps">الشيخ محمود الحصري</option>
-                     <option value="Hudhaify_128kbps">الشيخ علي الحذيفي</option>
-                     <option value="Muhammad_Ayyoub_128kbps">الشيخ محمد أيوب</option>
-                     <option value="khalifa_al_tunaiji_64kbps">الشيخ خليفة الطنيجي</option>
-                     <option value="Ayman_Sowaid_64kbps">الشيخ أيمن سويد</option>
-                     <option value="Menshawi_128kbps">الشيخ محمد المنشاوي</option>
-                     <option value="Abdul_Basit_Murattal_128kbps">الشيخ عبد الباسط عبد الصمد</option>
-                 </select>
-
-                 <div class="flex flex-wrap gap-2 justify-center mb-6">
-                     <input type="number" id="suraNum" placeholder="سورة" value="1" class="w-20 p-2 bg-purple-50 rounded-xl text-center text-xs">
-                     <input type="number" id="ayahNum" placeholder="آية" value="1" class="w-20 p-2 bg-purple-50 rounded-xl text-center text-xs">
-                 </div>
-
-                 <div class="flex justify-center gap-8">
-                     <button onclick="playQuran()" class="w-20 h-20 bg-blue-600 text-white rounded-full shadow-xl flex items-center justify-center text-3xl">
-                         <i id="playIcon" class="fas fa-play ml-1"></i>
-                     </button>
-                 </div>
-                 <audio id="quranAudio" class="hidden"></audio>
+                <h3 class="text-xs font-bold text-blue-900 mb-6 underline">مِحراب التلاوة (تشغيل النطاق)</h3>
+                <select id="sel-qari" class="w-full p-4 bg-gray-50 rounded-2xl mb-6 text-sm font-bold outline-none ring-1 ring-gray-100">
+                    <option value="Ibrahim_Al_Akdar_128kbps">إبراهيم الأخضر</option>
+                    <option value="Husary_128kbps">محمود الحصري</option>
+                    <option value="Hudhaify_128kbps">علي الحذيفي</option>
+                    <option value="Muhammad_Ayyoub_128kbps">محمد أيوب</option>
+                    <option value="Menshawi_128kbps">محمد المنشاوي</option>
+                    <option value="Abdul_Basit_Murattal_128kbps">عبدالباسط عبدالصمد</option>
+                </select>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-400">من (سورة:آية)</label>
+                        <div class="flex gap-1"><input type="number" id="s-sura" value="1" class="w-full p-2 bg-purple-50 rounded-xl text-center"><input type="number" id="s-ayah" value="1" class="w-full p-2 bg-purple-50 rounded-xl text-center"></div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-400">إلى (سورة:آية)</label>
+                        <div class="flex gap-1"><input type="number" id="e-sura" value="1" class="w-full p-2 bg-purple-50 rounded-xl text-center"><input type="number" id="e-ayah" value="7" class="w-full p-2 bg-purple-50 rounded-xl text-center"></div>
+                    </div>
+                </div>
+                <button onclick="startRangePlay()" class="w-20 h-20 bg-blue-600 text-white rounded-full shadow-xl flex items-center justify-center text-3xl mx-auto"><i id="p-icon" class="fas fa-play"></i></button>
+                <audio id="q-audio" class="hidden"></audio>
             </div>
         </section>
-
     </main>
 
     <script>
@@ -132,95 +115,69 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c2ZkY3lmamhoanlhZ2lldHRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI1NTcsImV4cCI6MjA5NDg4ODU1N30.i7zRKjAxs2jLOaPTN8ssOExhqurIOte5MkrzvpRbBiA';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let currentUser = null;
-        let userRole = null;
+        let user = null;
+        let role = null;
+        let playlist = [];
+        let currentIndex = 0;
 
-        async function handleLogin() {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const msg = document.getElementById('loginMsg');
+        async function login() {
+            const email = document.getElementById('in-email').value.trim();
+            const pass = document.getElementById('in-pass').value;
+            const err = document.getElementById('login-err');
+            err.innerText = "جاري التحقق...";
 
-            const { data: userData, error: userErr } = await _supabase
-                .from('users_meta')
-                .select('*')
-                .eq('email', email)
-                .eq('password', password)
-                .single();
+            const { data: u, error } = await _supabase.from('users_meta').select('*').eq('email', email).eq('password', pass).single();
+            if (error || !u) { err.innerText = "البيانات خاطئة!"; return; }
 
-            if (userErr || !userData) {
-                msg.innerText = "البيانات غير صحيحة!";
-                return;
-            }
-
-            const { data: roleData } = await _supabase
-                .from('user_roles')
-                .select('role')
-                .eq('user_id', userData.id)
-                .single();
-
-            currentUser = userData;
-            userRole = roleData ? roleData.role.trim() : 'طالبة';
+            const { data: r } = await _supabase.from('user_roles').select('role').eq('user_id', u.id).single();
+            user = u;
+            role = r ? r.role.trim() : 'طالبة';
             
-            startSystem();
-        }
+            document.getElementById('sec-login').classList.add('hidden');
+            document.getElementById('userBadge').classList.remove('hidden');
+            document.getElementById('dispName').innerText = user.full_name;
+            document.getElementById('dispRole').innerText = role;
 
-        function startSystem() {
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('userCard').classList.remove('hidden');
-            document.getElementById('userNameDisplay').innerText = currentUser.full_name;
-            document.getElementById('userRoleDisplay').innerText = userRole;
-
-            // تصفية الواجهة
-            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
-            
-            if (userRole === 'قائدة') {
-                document.getElementById('leaderDash').classList.remove('hidden');
-            } else {
-                document.getElementById('studentDash').classList.remove('hidden');
-                renderJuzMap();
+            if (role === 'قائدة') document.getElementById('sec-leader').classList.remove('hidden');
+            else if (role === 'مدخلة') document.getElementById('sec-entry').classList.remove('hidden');
+            else { 
+                document.getElementById('sec-student').classList.remove('hidden');
+                document.getElementById('welcome-msg').innerText = `أهلاً بكِ، ${user.full_name.split(' ')[0]} 🌸`;
             }
         }
 
-        // وظيفة تشغيل القرآن الحقيقية
-        function playQuran() {
-            const reciter = document.getElementById('qurraSelect').value;
-            const sura = document.getElementById('suraNum').value.padStart(3, '0');
-            const ayah = document.getElementById('ayahNum').value.padStart(3, '0');
-            const audio = document.getElementById('quranAudio');
-            const icon = document.getElementById('playIcon');
+        function startRangePlay() {
+            const qari = document.getElementById('sel-qari').value;
+            const sSura = parseInt(document.getElementById('s-sura').value);
+            const sAyah = parseInt(document.getElementById('s-ayah').value);
+            const eSura = parseInt(document.getElementById('e-sura').value);
+            const eAyah = parseInt(document.getElementById('e-ayah').value);
+            const audio = document.getElementById('q-audio');
+            const icon = document.getElementById('p-icon');
 
-            const url = `https://www.everyayah.com/data/${reciter}/${sura}${ayah}.mp3`;
+            playlist = [];
+            // توليد قائمة الآيات (تبسيط: لنفس السورة حالياً لضمان الاستقرار)
+            for(let a = sAyah; a <= eAyah; a++) {
+                playlist.push(`https://www.everyayah.com/data/${qari}/${sSura.toString().padStart(3,'0')}${a.toString().padStart(3,'0')}.mp3`);
+            }
             
-            if (audio.src !== url) {
-                audio.src = url;
+            currentIndex = 0;
+            playNext();
+            icon.className = 'fas fa-pause';
+        }
+
+        function playNext() {
+            const audio = document.getElementById('q-audio');
+            if(currentIndex < playlist.length) {
+                audio.src = playlist[currentIndex];
                 audio.play();
-                icon.className = 'fas fa-pause';
+                audio.onended = () => { currentIndex++; playNext(); };
             } else {
-                if (audio.paused) {
-                    audio.play();
-                    icon.className = 'fas fa-pause';
-                } else {
-                    audio.pause();
-                    icon.className = 'fas fa-play';
-                }
-            }
-            
-            audio.onended = () => icon.className = 'fas fa-play';
-        }
-
-        function renderJuzMap() {
-            const map = document.getElementById('juzMap');
-            map.innerHTML = '';
-            for (let i = 1; i <= 30; i++) {
-                const box = document.createElement('div');
-                box.className = `juz-box ${i <= 5 ? 'juz-done' : ''}`;
-                box.innerText = i;
-                map.appendChild(box);
+                document.getElementById('p-icon').className = 'fas fa-play';
             }
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-        function logout() { location.reload(); }
     </script>
 </body>
 </html>
